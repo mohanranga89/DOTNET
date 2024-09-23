@@ -1,0 +1,62 @@
+version: 2.1
+
+executors:
+  dotnet-executor:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:7.0 # Use the appropriate .NET SDK version
+    working_directory: ~/project
+
+jobs:
+  # Job to build the .NET application
+  build:
+    executor: dotnet-executor
+    steps:
+      - checkout
+      - run:
+          name: Install NuGet Packages
+          command: |
+            dotnet restore
+
+      - run:
+          name: Build Application
+          command: |
+            dotnet build --configuration Release --no-restore
+
+  # Job to run tests
+  test:
+    executor: dotnet-executor
+    steps:
+      - checkout
+      - run:
+          name: Install NuGet Packages
+          command: |
+            dotnet restore
+
+      - run:
+          name: Run Tests
+          command: |
+            dotnet test --no-restore --verbosity normal
+
+  # Job to deploy the application (replace with actual deployment steps)
+  deploy:
+    executor: dotnet-executor
+    steps:
+      - checkout
+      - run:
+          name: Deploy Application
+          command: |
+            echo "Add deployment steps here"
+            # Example: dotnet publish -c Release -o out
+            # Example: Deploy to Azure, AWS, or another service
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - test
